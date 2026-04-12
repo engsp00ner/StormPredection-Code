@@ -23,6 +23,10 @@ CACHE_TTL_SECONDS = 60
 
 
 class AlertRulesEngine:
+    @staticmethod
+    def _normalize_line_breaks(value: str) -> str:
+        return value.replace("\\r\\n", "\n").replace("\\n", "\n")
+
     @classmethod
     def evaluate(
         cls,
@@ -179,7 +183,8 @@ class AlertRulesEngine:
             "risk_level": prediction.get("risk_level", "UNKNOWN") if prediction else "UNKNOWN",
         }
         try:
-            return rule.message_template.format(**context)
+            template = cls._normalize_line_breaks(rule.message_template)
+            return template.format(**context)
         except (KeyError, ValueError) as exc:
             logger.error(
                 "Message template render failed for rule %s: %s",

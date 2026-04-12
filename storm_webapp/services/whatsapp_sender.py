@@ -21,6 +21,10 @@ class WhatsAppSenderService:
     TAB_CLOSE_DELAY = 3
     INTER_SEND_DELAY = 25
 
+    @staticmethod
+    def _normalize_message(message: str) -> str:
+        return message.replace("\\r\\n", "\n").replace("\\n", "\n")
+
     def send_alert(
         self,
         phone: str,
@@ -40,13 +44,15 @@ class WhatsAppSenderService:
             WhatsAppSendLog,
         )
 
+        normalized_message = self._normalize_message(message)
+
         try:
             runtime_status = WhatsAppRuntimeStatus.get_singleton()
 
             if not runtime_status.browser_ready:
                 log = WhatsAppSendLog.objects.create(
                     phone=phone,
-                    message=message,
+                    message=normalized_message,
                     status=WhatsAppSendLog.Status.MANUAL_CHECK_NEEDED,
                     error_message="WhatsApp Web not confirmed as ready by operator.",
                     is_test=is_test,
@@ -65,7 +71,7 @@ class WhatsAppSenderService:
 
             pywhatkit.sendwhatmsg_instantly(
                 phone_no=phone,
-                message=message,
+                message=normalized_message,
                 wait_time=self.WAIT_TIME_SECONDS,
                 tab_close=True,
                 close_time=self.TAB_CLOSE_DELAY,
@@ -73,7 +79,7 @@ class WhatsAppSenderService:
 
             log = WhatsAppSendLog.objects.create(
                 phone=phone,
-                message=message,
+                message=normalized_message,
                 status=WhatsAppSendLog.Status.SUCCESS,
                 is_test=is_test,
                 alert_event_id=alert_event_id,
@@ -86,7 +92,7 @@ class WhatsAppSenderService:
             error_message = str(exc)[:500]
             log = WhatsAppSendLog.objects.create(
                 phone=phone,
-                message=message,
+                message=normalized_message,
                 status=WhatsAppSendLog.Status.FAILED,
                 error_message=error_message,
                 is_test=is_test,

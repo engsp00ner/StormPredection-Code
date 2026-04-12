@@ -108,7 +108,7 @@
       "severity": "HIGH",
       "enabled": true,
       "cooldown_minutes": 30,
-      "message_template": "STORM ALERT\\nStorm probability: {probability:.0%} | Risk: {risk_level}\\nPressure: {pressure:.1f} hPa | Temp: {temperature:.1f}C\\nTime: {timestamp}",
+      "message_template": "STORM ALERT\nStorm probability: {probability:.0%} | Risk: {risk_level}\nPressure: {pressure:.1f} hPa | Temp: {temperature:.1f}C\nTime: {timestamp}",
       "created_at": "2026-04-11T00:00:00Z",
       "updated_at": "2026-04-11T00:00:00Z"
     }
@@ -123,7 +123,7 @@
       "severity": "HIGH",
       "enabled": true,
       "cooldown_minutes": 60,
-      "message_template": "HIGH PRESSURE ALERT\\nReading: {value:.1f} hPa (Threshold: {threshold:.1f} hPa)\\nTemp: {temperature:.1f}C | Time: {timestamp}",
+      "message_template": "HIGH PRESSURE ALERT\nReading: {value:.1f} hPa (Threshold: {threshold:.1f} hPa)\nTemp: {temperature:.1f}C | Time: {timestamp}",
       "created_at": "2026-04-11T00:00:00Z",
       "updated_at": "2026-04-11T00:00:00Z"
     }
@@ -138,7 +138,7 @@
       "severity": "MEDIUM",
       "enabled": true,
       "cooldown_minutes": 30,
-      "message_template": "LOW PRESSURE ALERT\\nReading: {value:.1f} hPa (Threshold: {threshold:.1f} hPa)\\nLow pressure may indicate incoming storm.\\nTemp: {temperature:.1f}C | Time: {timestamp}",
+      "message_template": "LOW PRESSURE ALERT\nReading: {value:.1f} hPa (Threshold: {threshold:.1f} hPa)\nLow pressure may indicate incoming storm.\nTemp: {temperature:.1f}C | Time: {timestamp}",
       "created_at": "2026-04-11T00:00:00Z",
       "updated_at": "2026-04-11T00:00:00Z"
     }
@@ -153,7 +153,7 @@
       "severity": "MEDIUM",
       "enabled": true,
       "cooldown_minutes": 60,
-      "message_template": "HIGH TEMPERATURE ALERT\\nReading: {value:.1f}C (Threshold: {threshold:.1f}C)\\nPressure: {pressure:.1f} hPa | Time: {timestamp}",
+      "message_template": "HIGH TEMPERATURE ALERT\nReading: {value:.1f}C (Threshold: {threshold:.1f}C)\nPressure: {pressure:.1f} hPa | Time: {timestamp}",
       "created_at": "2026-04-11T00:00:00Z",
       "updated_at": "2026-04-11T00:00:00Z"
     }
@@ -168,7 +168,7 @@
       "severity": "MEDIUM",
       "enabled": true,
       "cooldown_minutes": 60,
-      "message_template": "LOW TEMPERATURE ALERT\\nReading: {value:.1f}C (Threshold: {threshold:.1f}C)\\nPressure: {pressure:.1f} hPa | Time: {timestamp}",
+      "message_template": "LOW TEMPERATURE ALERT\nReading: {value:.1f}C (Threshold: {threshold:.1f}C)\nPressure: {pressure:.1f} hPa | Time: {timestamp}",
       "created_at": "2026-04-11T00:00:00Z",
       "updated_at": "2026-04-11T00:00:00Z"
     }

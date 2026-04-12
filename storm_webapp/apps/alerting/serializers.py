@@ -23,3 +23,6 @@ class AlertRuleUpdateSerializer(serializers.Serializer):
     enabled = serializers.BooleanField(required=False)
     cooldown_minutes = serializers.IntegerField(min_value=1, required=False)
     message_template = serializers.CharField(required=False)
+
+    def validate_message_template(self, value: str) -> str:
+        return value.replace("\\r\\n", "\n").replace("\\n", "\n")

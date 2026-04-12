@@ -48,3 +48,13 @@ Time: 1:26
 Phone Number: +201111089979
 Message: STORM ALERT\nStorm probability: 66% | Risk: MEDIUM\nPressure: 1015.6 hPa | Temp: 26.0C\nTime: 2026-03-18 12:25:16
 --------------------
+Date: 12/4/2026
+Time: 19:10
+Phone Number: +201111089979
+Message: STORM ALERT\nStorm probability: 67% | Risk: MEDIUM\nPressure: 1016.5 hPa | Temp: 26.9C\nTime: 2026-03-18 11:09:42
+--------------------
+Date: 12/4/2026
+Time: 19:11
+Phone Number: +201024478945
+Message: STORM ALERT\nStorm probability: 67% | Risk: MEDIUM\nPressure: 1016.5 hPa | Temp: 26.9C\nTime: 2026-03-18 11:09:42
+--------------------
