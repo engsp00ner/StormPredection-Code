@@ -1,0 +1,32 @@
+[
+  {
+    "timestamp": "2023-12-31T18:00:00",
+    "pressure_hPa": 1016.75,
+    "temperature_C": 14.39
+  },
+  {
+    "timestamp": "2023-12-31T19:00:00",
+    "pressure_hPa": 1016.21,
+    "temperature_C": 16.21
+  },
+  {
+    "timestamp": "2023-12-31T20:00:00",
+    "pressure_hPa": 1017.75,
+    "temperature_C": 14.6
+  },
+  {
+    "timestamp": "2023-12-31T21:00:00",
+    "pressure_hPa": 1016.83,
+    "temperature_C": 15.7
+  },
+  {
+    "timestamp": "2023-12-31T22:00:00",
+    "pressure_hPa": 1016.72,
+    "temperature_C": 15.71
+  },
+  {
+    "timestamp": "2023-12-31T23:00:00",
+    "pressure_hPa": 1017.26,
+    "temperature_C": 16.35
+  }
+]

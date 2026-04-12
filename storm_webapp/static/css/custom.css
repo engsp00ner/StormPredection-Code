@@ -1,0 +1,61 @@
+body {
+    min-height: 100vh;
+}
+
+.ws-dot {
+    display: inline-block;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 999px;
+    background: #adb5bd;
+    box-shadow: 0 0 0 0.2rem rgba(173, 181, 189, 0.15);
+}
+
+.ws-dot--green {
+    background: #198754;
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.15);
+}
+
+.ws-dot--grey {
+    background: #6c757d;
+    box-shadow: 0 0 0 0.2rem rgba(108, 117, 125, 0.15);
+}
+
+.risk-card {
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.risk-card--low {
+    background: #d1e7dd;
+}
+
+.risk-card--medium {
+    background: #fff3cd;
+}
+
+.risk-card--high {
+    background: #f8d7da;
+}
+
+.risk-card--neutral {
+    background: #f8f9fa;
+}
+
+.severity-badge {
+    letter-spacing: 0.03em;
+}
+
+.severity-badge--low {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.severity-badge--medium {
+    background: #fff3cd;
+    color: #664d03;
+}
+
+.severity-badge--high {
+    background: #f8d7da;
+    color: #842029;
+}

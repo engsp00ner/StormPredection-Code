@@ -1,0 +1,16 @@
+data:
+  raw_path: data/raw/weather_raw.csv
+  clean_path: data/processed/weather_clean.csv
+  features_path: data/processed/weather_features.csv
+  labeled_path: data/processed/weather_labeled.csv
+
+model:
+  output_path: models/storm_model.pkl
+  split_date: null
+  horizon_hours: 3
+  pressure_drop_threshold: 3.0
+
+inference:
+  buffer_size: 12
+  decision_threshold: 0.5
+

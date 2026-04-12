@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | Storm Prediction{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column gap-4">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+        <div>
+            <h1 class="h3 mb-1">Storm Prediction Dashboard</h1>
+            <p class="text-secondary mb-0">Live atmospheric readings, model risk, and alert activity.</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <span class="badge rounded-pill text-bg-primary">Pressure high {{ pressure_high_threshold }}</span>
+            <span class="badge rounded-pill text-bg-warning">Pressure low {{ pressure_low_threshold }}</span>
+            <span class="badge rounded-pill text-bg-danger">Temp high {{ temperature_high_threshold }}</span>
+            <span class="badge rounded-pill text-bg-info">Temp low {{ temperature_low_threshold }}</span>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 risk-card risk-card--neutral h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-uppercase text-secondary small mb-2">Current risk</p>
+                            <h2 id="risk-level" class="h4 mb-1">BUFFERING</h2>
+                            <p id="risk-detail" class="text-secondary mb-0">Waiting for enough readings.</p>
+                        </div>
+                        <span id="risk-badge" class="badge severity-badge bg-secondary-subtle text-secondary-emphasis">
+                            BUFFERING
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <h2 class="h5">Recent alerts</h2>
+                    <p class="text-secondary">Latest triggered events will appear here once the alert engine fires.</p>
+                    <div id="recent-alerts" class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Rule</th>
+                                    <th>Severity</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4" class="text-secondary">No alerts yet.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h2 class="h5">Pressure trend</h2>
+                    <canvas id="pressure-chart" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h2 class="h5">Temperature trend</h2>
+                    <canvas id="temperature-chart" height="160"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const PRESSURE_HIGH = {{ pressure_high_threshold }};
+    const PRESSURE_LOW = {{ pressure_low_threshold }};
+    const TEMP_HIGH = {{ temperature_high_threshold }};
+    const TEMP_LOW = {{ temperature_low_threshold }};
+</script>
+<script src="/static/js/dashboard.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        loadInitialData();
+        connectWebSocket();
+    });
+</script>
+{% endblock %}

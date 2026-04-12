@@ -1,0 +1,66 @@
+{
+  "model_path": "models\\storm_model.pkl",
+  "features": [
+    "pressure_hPa",
+    "temperature_C",
+    "pressure_lag_1h",
+    "pressure_lag_2h",
+    "pressure_lag_3h",
+    "temp_lag_1h",
+    "temp_lag_2h",
+    "pressure_diff_1h",
+    "pressure_diff_3h",
+    "pressure_tendency",
+    "pressure_rolling_mean_3h",
+    "pressure_rolling_std_3h",
+    "pressure_rolling_min_3h",
+    "temp_rolling_mean_3h",
+    "hour_of_day",
+    "month"
+  ],
+  "split_date": "2023-08-07T22:00:00",
+  "decision_threshold": 0.7,
+  "scale_pos_weight": 95.62758620689655,
+  "training_params": {
+    "n_estimators": 200,
+    "max_depth": 3,
+    "learning_rate": 0.05,
+    "min_child_weight": 12,
+    "gamma": 1.0,
+    "subsample": 0.9,
+    "colsample_bytree": 0.8,
+    "reg_lambda": 4.0,
+    "scale_pos_weight": 95.62758620689655,
+    "eval_metric": "aucpr",
+    "early_stopping_rounds": 30,
+    "random_state": 42,
+    "verbosity": 0
+  },
+  "train_rows": 14011,
+  "validation_rows": 3503,
+  "metrics": {
+    "precision": 0.5714285714285714,
+    "recall": 0.15384615384615385,
+    "f1": 0.24242424242424243,
+    "roc_auc": 0.8748866175527091,
+    "pr_auc": 0.14981596385061122,
+    "confusion_matrix": [
+      [
+        3474,
+        3
+      ],
+      [
+        22,
+        4
+      ]
+    ]
+  },
+  "threshold_selection": {
+    "precision": 0.5714285714285714,
+    "recall": 0.15384615384615385,
+    "f1": 0.24242424242424243,
+    "meets_target": true
+  },
+  "tuned": true,
+  "search_candidates": 1296
+}

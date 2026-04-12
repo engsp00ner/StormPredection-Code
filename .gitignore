@@ -1,0 +1,9 @@
+storm_webapp/.env
+storm_webapp/db.sqlite3
+Storm-venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.csv
+*.zip

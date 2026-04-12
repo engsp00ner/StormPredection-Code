@@ -1,0 +1,187 @@
+[
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 1,
+    "fields": {
+      "key": "storm_probability_threshold",
+      "value": "0.70",
+      "value_type": "float",
+      "description": "Min storm probability to trigger alert",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 2,
+    "fields": {
+      "key": "pressure_high_threshold",
+      "value": "1030.0",
+      "value_type": "float",
+      "description": "hPa upper threshold",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 3,
+    "fields": {
+      "key": "pressure_low_threshold",
+      "value": "990.0",
+      "value_type": "float",
+      "description": "hPa lower threshold",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 4,
+    "fields": {
+      "key": "temperature_high_threshold",
+      "value": "40.0",
+      "value_type": "float",
+      "description": "deg C upper threshold",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 5,
+    "fields": {
+      "key": "temperature_low_threshold",
+      "value": "0.0",
+      "value_type": "float",
+      "description": "deg C lower threshold",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 6,
+    "fields": {
+      "key": "alert_cooldown_minutes",
+      "value": "30",
+      "value_type": "int",
+      "description": "Default cooldown; overridden per rule",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 7,
+    "fields": {
+      "key": "whatsapp_alerts_enabled",
+      "value": "true",
+      "value_type": "bool",
+      "description": "Master WhatsApp send switch",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 8,
+    "fields": {
+      "key": "dashboard_history_hours",
+      "value": "24",
+      "value_type": "int",
+      "description": "Hours of data shown on dashboard chart init",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "settings_manager.systemsetting",
+    "pk": 9,
+    "fields": {
+      "key": "model_buffer_size",
+      "value": "12",
+      "value_type": "int",
+      "description": "StormPredictor deque maxlen",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "alerting.alertrule",
+    "pk": 1,
+    "fields": {
+      "rule_type": "STORM_PROBABILITY",
+      "name": "Storm Probability Alert",
+      "threshold_value": 0.70,
+      "severity": "HIGH",
+      "enabled": true,
+      "cooldown_minutes": 30,
+      "message_template": "STORM ALERT\\nStorm probability: {probability:.0%} | Risk: {risk_level}\\nPressure: {pressure:.1f} hPa | Temp: {temperature:.1f}C\\nTime: {timestamp}",
+      "created_at": "2026-04-11T00:00:00Z",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "alerting.alertrule",
+    "pk": 2,
+    "fields": {
+      "rule_type": "PRESSURE_HIGH",
+      "name": "High Pressure Alert",
+      "threshold_value": 1030.0,
+      "severity": "HIGH",
+      "enabled": true,
+      "cooldown_minutes": 60,
+      "message_template": "HIGH PRESSURE ALERT\\nReading: {value:.1f} hPa (Threshold: {threshold:.1f} hPa)\\nTemp: {temperature:.1f}C | Time: {timestamp}",
+      "created_at": "2026-04-11T00:00:00Z",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "alerting.alertrule",
+    "pk": 3,
+    "fields": {
+      "rule_type": "PRESSURE_LOW",
+      "name": "Low Pressure Alert",
+      "threshold_value": 990.0,
+      "severity": "MEDIUM",
+      "enabled": true,
+      "cooldown_minutes": 30,
+      "message_template": "LOW PRESSURE ALERT\\nReading: {value:.1f} hPa (Threshold: {threshold:.1f} hPa)\\nLow pressure may indicate incoming storm.\\nTemp: {temperature:.1f}C | Time: {timestamp}",
+      "created_at": "2026-04-11T00:00:00Z",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "alerting.alertrule",
+    "pk": 4,
+    "fields": {
+      "rule_type": "TEMPERATURE_HIGH",
+      "name": "High Temperature Alert",
+      "threshold_value": 40.0,
+      "severity": "MEDIUM",
+      "enabled": true,
+      "cooldown_minutes": 60,
+      "message_template": "HIGH TEMPERATURE ALERT\\nReading: {value:.1f}C (Threshold: {threshold:.1f}C)\\nPressure: {pressure:.1f} hPa | Time: {timestamp}",
+      "created_at": "2026-04-11T00:00:00Z",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "alerting.alertrule",
+    "pk": 5,
+    "fields": {
+      "rule_type": "TEMPERATURE_LOW",
+      "name": "Low Temperature Alert",
+      "threshold_value": 0.0,
+      "severity": "MEDIUM",
+      "enabled": true,
+      "cooldown_minutes": 60,
+      "message_template": "LOW TEMPERATURE ALERT\\nReading: {value:.1f}C (Threshold: {threshold:.1f}C)\\nPressure: {pressure:.1f} hPa | Time: {timestamp}",
+      "created_at": "2026-04-11T00:00:00Z",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "whatsapp_integration.whatsappruntimestatus",
+    "pk": 1,
+    "fields": {
+      "browser_ready": false,
+      "last_confirmed_at": null,
+      "confirmed_by": "",
+      "notes": "",
+      "updated_at": "2026-04-11T00:00:00Z"
+    }
+  }
+]
