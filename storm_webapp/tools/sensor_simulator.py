@@ -71,6 +71,6 @@ if __name__ == "__main__":
         choices=["normal", "storm", "cold"],
     )
     parser.add_argument("--interval", type=int, default=60)
-    parser.add_argument("--api-key", default="change-me")
+    parser.add_argument("--api-key", default="MyStormPredectionKey")
     args = parser.parse_args()
     simulate(args.url, args.api_key, args.interval, args.mode)

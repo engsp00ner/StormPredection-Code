@@ -8,3 +8,43 @@ Time: 18:37
 Phone Number: +201111089979
 Message: Test from Storm Prediction System.
 --------------------
+Date: 11/4/2026
+Time: 18:44
+Phone Number: +201111089979
+Message: Test from Storm Prediction System.
+--------------------
+Date: 11/4/2026
+Time: 23:57
+Phone Number: +923001234567
+Message: LOW PRESSURE ALERT\nReading: 984.9 hPa (Threshold: 985.0 hPa)\nLow pressure may indicate incoming storm.\nTemp: 24.1C | Time: 2026-04-11 21:57:02
+--------------------
+Date: 11/4/2026
+Time: 23:58
+Phone Number: +12025550112
+Message: LOW PRESSURE ALERT\nReading: 984.9 hPa (Threshold: 985.0 hPa)\nLow pressure may indicate incoming storm.\nTemp: 24.1C | Time: 2026-04-11 21:57:02
+--------------------
+Date: 11/4/2026
+Time: 23:59
+Phone Number: +12025550113
+Message: LOW PRESSURE ALERT\nReading: 984.9 hPa (Threshold: 985.0 hPa)\nLow pressure may indicate incoming storm.\nTemp: 24.1C | Time: 2026-04-11 21:57:02
+--------------------
+Date: 11/4/2026
+Time: 23:59
+Phone Number: +201111089979
+Message: LOW PRESSURE ALERT\nReading: 984.9 hPa (Threshold: 985.0 hPa)\nLow pressure may indicate incoming storm.\nTemp: 24.1C | Time: 2026-04-11 21:57:02
+--------------------
+Date: 12/4/2026
+Time: 0:47
+Phone Number: +201111089979
+Message: LOW PRESSURE ALERT\nReading: 984.9 hPa (Threshold: 985.0 hPa)\nLow pressure may indicate incoming storm.\nTemp: 24.1C | Time: 2026-04-11 22:47:30
+--------------------
+Date: 12/4/2026
+Time: 1:26
+Phone Number: +201111089979
+Message: STORM ALERT\nStorm probability: 58% | Risk: LOW\nPressure: 1016.5 hPa | Temp: 26.9C\nTime: 2026-03-18 11:25:16
+--------------------
+Date: 12/4/2026
+Time: 1:26
+Phone Number: +201111089979
+Message: STORM ALERT\nStorm probability: 66% | Risk: MEDIUM\nPressure: 1015.6 hPa | Temp: 26.0C\nTime: 2026-03-18 12:25:16
+--------------------

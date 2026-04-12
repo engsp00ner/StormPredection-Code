@@ -3,6 +3,7 @@ param(
     [int]$BackendPort = 8000,
     [string]$FrontendHost = "127.0.0.1",
     [int]$FrontendPort = 5173,
+    [int]$FrontendDelaySeconds = 15,
     [switch]$DryRun
 )
 
@@ -11,7 +12,8 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $backendDir = Join-Path $repoRoot "storm_webapp"
 $frontendDir = Join-Path $repoRoot "frontend"
-$tempModelCheck = Join-Path $backendDir "_startup_model_check.py"
+$backendBootstrapPath = Join-Path $env:TEMP "storm_backend_startup.ps1"
+$frontendBootstrapPath = Join-Path $env:TEMP "storm_frontend_startup.ps1"
 $venvPython = Join-Path $repoRoot "Storm-venv\Scripts\python.exe"
 $venvDaphne = Join-Path $repoRoot "Storm-venv\Scripts\daphne.exe"
 $npmCmd = (Get-Command npm.cmd -ErrorAction Stop).Source
@@ -33,9 +35,15 @@ if (-not (Test-Path $frontendDir)) {
 }
 
 $modelCheckPython = @"
+import os
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "storm_webapp.settings.local")
+
+import django
+django.setup()
+
 from django.conf import settings
 from ml_engine.predictor import get_predictor
-import os
 
 print(f"STORM_MODEL_PATH={settings.STORM_MODEL_PATH}")
 print(f"MODEL_EXISTS={os.path.exists(settings.STORM_MODEL_PATH)}")
@@ -43,25 +51,39 @@ print(f"PREDICTOR_READY={get_predictor() is not None}")
 "@
 
 $backendBootstrap = @"
-Set-Location '$backendDir'
-Write-Host 'Checking Django project...' -ForegroundColor Cyan
-& '$venvPython' manage.py check
-if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }
-Write-Host 'Verifying prediction model load...' -ForegroundColor Cyan
-@'
+try {
+    Set-Location '$backendDir'
+    Write-Host 'Checking Django project...' -ForegroundColor Cyan
+    & '$venvPython' manage.py check
+    if (`$LASTEXITCODE -ne 0) { throw "manage.py check failed with exit code `$LASTEXITCODE" }
+
+    Write-Host 'Verifying prediction model load...' -ForegroundColor Cyan
+    @'
 $modelCheckPython
-'@ | Set-Content -Path '$tempModelCheck' -Encoding UTF8
-Get-Content '$tempModelCheck' | & '$venvPython' manage.py shell
-if (`$LASTEXITCODE -ne 0) { exit `$LASTEXITCODE }
-Remove-Item '$tempModelCheck' -ErrorAction SilentlyContinue
-Write-Host 'Starting Daphne backend on http://$BackendHost`:$BackendPort' -ForegroundColor Green
-& '$venvDaphne' -b $BackendHost -p $BackendPort storm_webapp.asgi:application
+'@ | & '$venvPython' -
+    if (`$LASTEXITCODE -ne 0) { throw "Prediction model verification failed with exit code `$LASTEXITCODE" }
+
+    Write-Host 'Starting Daphne backend on http://$BackendHost`:$BackendPort' -ForegroundColor Green
+    & '$venvDaphne' -b $BackendHost -p $BackendPort storm_webapp.asgi:application
+    if (`$LASTEXITCODE -ne 0) { throw "Daphne exited with exit code `$LASTEXITCODE" }
+}
+catch {
+    Write-Host ('Backend startup failed: ' + `$_.Exception.Message) -ForegroundColor Red
+    Write-Host 'The backend window will stay open for troubleshooting.' -ForegroundColor Yellow
+}
 "@
 
 $frontendBootstrap = @"
-Set-Location '$frontendDir'
-Write-Host 'Starting Vite frontend on http://$FrontendHost`:$FrontendPort' -ForegroundColor Green
-& '$npmCmd' run dev -- --host $FrontendHost --port $FrontendPort
+try {
+    Set-Location '$frontendDir'
+    Write-Host 'Starting Vite frontend on http://$FrontendHost`:$FrontendPort' -ForegroundColor Green
+    & '$npmCmd' run dev -- --host $FrontendHost --port $FrontendPort
+    if (`$LASTEXITCODE -ne 0) { throw "Frontend exited with exit code `$LASTEXITCODE" }
+}
+catch {
+    Write-Host ('Frontend startup failed: ' + `$_.Exception.Message) -ForegroundColor Red
+    Write-Host 'The frontend window will stay open for troubleshooting.' -ForegroundColor Yellow
+}
 "@
 
 if ($DryRun) {
@@ -73,22 +95,26 @@ if ($DryRun) {
     exit 0
 }
 
+Set-Content -Path $backendBootstrapPath -Value $backendBootstrap -Encoding UTF8
+Set-Content -Path $frontendBootstrapPath -Value $frontendBootstrap -Encoding UTF8
+
 Start-Process powershell -ArgumentList @(
     "-NoExit",
     "-ExecutionPolicy",
     "Bypass",
-    "-Command",
-    $backendBootstrap
+    "-File",
+    $backendBootstrapPath
 )
 
-Start-Sleep -Seconds 2
+Write-Host "Waiting $FrontendDelaySeconds seconds before starting the frontend..." -ForegroundColor Cyan
+Start-Sleep -Seconds $FrontendDelaySeconds
 
 Start-Process powershell -ArgumentList @(
     "-NoExit",
     "-ExecutionPolicy",
     "Bypass",
-    "-Command",
-    $frontendBootstrap
+    "-File",
+    $frontendBootstrapPath
 )
 
 Write-Host "Backend and frontend startup windows launched." -ForegroundColor Green

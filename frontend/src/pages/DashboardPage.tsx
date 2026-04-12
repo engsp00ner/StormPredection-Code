@@ -1,7 +1,6 @@
 import { startTransition, useDeferredValue, useEffect, useState } from "react";
 
 import AlertBanner from "../components/dashboard/AlertBanner";
-import ForecastStrip from "../components/dashboard/ForecastStrip";
 import HeroStormCard from "../components/dashboard/HeroStormCard";
 import HighlightsGrid from "../components/dashboard/HighlightsGrid";
 import LiveChartsPanel from "../components/dashboard/LiveChartsPanel";
@@ -75,7 +74,7 @@ export default function DashboardPage() {
           fetch("/api/v1/readings/?hours=24&limit=500"),
           fetch("/api/v1/predictions/?hours=24&limit=500"),
           fetch("/api/v1/predictions/latest/"),
-          fetch("/api/v1/alerts/?hours=24&limit=5"),
+          fetch("/api/v1/alerts/?hours=24&limit=12"),
         ]);
 
       if (!readingsResponse.ok || !predictionsResponse.ok || !latestPredictionResponse.ok || !alertsResponse.ok) {
@@ -216,32 +215,31 @@ export default function DashboardPage() {
           />
 
           <section className="grid gap-6 xl:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)]">
-            <div className="space-y-6">
-              <HeroStormCard
-                data={runtime.hero}
-                windBand={
-                  latestPrediction.storm_probability !== null
-                    ? `NE ${Math.round(18 + latestPrediction.storm_probability * 34)} km/h`
-                    : "Awaiting live data"
-                }
-                pressureDrop={
-                  readings.length > 1
-                    ? `${(readings.at(-1)!.pressure_hPa - readings.at(-2)!.pressure_hPa).toFixed(1)} hPa`
-                    : "No delta yet"
-                }
-              />
-              <LiveChartsPanel data={deferredTrends} />
-              <RecentStationsCard stations={runtime.stations} />
-            </div>
+            <HeroStormCard
+              data={runtime.hero}
+              windBand={
+                latestPrediction.storm_probability !== null
+                  ? `NE ${Math.round(18 + latestPrediction.storm_probability * 34)} km/h`
+                  : "Awaiting live data"
+              }
+              pressureDrop={
+                readings.length > 1
+                  ? `${(readings.at(-1)!.pressure_hPa - readings.at(-2)!.pressure_hPa).toFixed(1)} hPa`
+                  : "No delta yet"
+              }
+            />
 
-            <div className="space-y-6">
-              <HighlightsGrid
-                metrics={runtime.highlights}
-                summary={runtime.summary}
-              />
-              <ForecastStrip forecast={runtime.forecast} />
-              <RecentAlertsPanel alerts={runtime.recentAlerts} />
-            </div>
+            <HighlightsGrid
+              metrics={runtime.highlights}
+              summary={runtime.summary}
+            />
+          </section>
+
+          <LiveChartsPanel data={deferredTrends} />
+
+          <section className="grid gap-6 xl:grid-cols-[minmax(0,0.86fr)_minmax(0,1.14fr)]">
+            <RecentStationsCard stations={runtime.stations} />
+            <RecentAlertsPanel alerts={runtime.recentAlerts} />
           </section>
         </div>
       </div>

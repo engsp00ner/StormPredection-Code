@@ -82,7 +82,7 @@ def run(url: str, api_key: str, interval_seconds: int) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--url", default="http://127.0.0.1:8000")
-    parser.add_argument("--api-key", default="change-me")
+    parser.add_argument("--api-key", default="MyStormPredectionKey")
     parser.add_argument("--interval", type=int, default=5)
     args = parser.parse_args()
     run(args.url, args.api_key, args.interval)

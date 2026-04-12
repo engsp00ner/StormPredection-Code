@@ -76,4 +76,25 @@
   .scrollbar-hidden::-webkit-scrollbar {
     display: none;
   }
+
+  .dashboard-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(125, 211, 252, 0.55) rgba(255, 255, 255, 0.04);
+  }
+
+  .dashboard-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .dashboard-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 999px;
+  }
+
+  .dashboard-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(125, 211, 252, 0.75), rgba(34, 211, 238, 0.4));
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
 }

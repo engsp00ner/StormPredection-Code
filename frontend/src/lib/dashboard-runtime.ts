@@ -1,18 +1,13 @@
 import {
   Activity,
-  CloudLightning,
   Gauge,
   RadioTower,
   Siren,
   Thermometer,
-  Tornado,
-  Waves,
-  Wind,
 } from "lucide-react";
 
 import type {
   AlertBannerData,
-  ForecastPoint,
   HeroData,
   HighlightMetric,
   PredictionSummary,
@@ -67,7 +62,6 @@ export interface DashboardRuntimeData {
   hero: HeroData;
   highlights: HighlightMetric[];
   summary: PredictionSummary;
-  forecast: ForecastPoint[];
   stations: StationSnapshot[];
   trends: TrendPoint[];
   banner: AlertBannerData;
@@ -169,26 +163,6 @@ export function buildDashboardRuntimeData(
       accent: "amber",
     },
     {
-      id: "wind",
-      label: "Wind Speed",
-      value: latestPrediction.storm_probability !== null
-        ? `${Math.round(18 + latestPrediction.storm_probability * 34)} km/h`
-        : "--",
-      subtitle: "Derived from current storm intensity",
-      icon: Wind,
-      accent: "blue",
-    },
-    {
-      id: "humidity",
-      label: "Humidity",
-      value: latestPrediction.storm_probability !== null
-        ? `${Math.min(95, 48 + Math.round(latestPrediction.storm_probability * 40))}%`
-        : "--",
-      subtitle: "Estimated atmospheric retention",
-      icon: Waves,
-      accent: "blue",
-    },
-    {
       id: "sensor-health",
       label: "Sensor Health",
       value: orderedReadings.length ? "100%" : "0%",
@@ -227,31 +201,8 @@ export function buildDashboardRuntimeData(
     ],
   };
 
-  const forecastSource = orderedReadings.slice(-6);
-  const forecast: ForecastPoint[] = forecastSource.map((reading, index) => {
-    const linkedPrediction = probabilityMap.get(reading.id);
-    const probability = Math.round((linkedPrediction?.storm_probability ?? latestPrediction.storm_probability ?? 0) * 100);
-    const icon =
-      probability >= 80
-        ? Tornado
-        : probability >= 60
-          ? CloudLightning
-          : index === 0
-            ? Siren
-            : RadioTower;
-
-    return {
-      id: `reading-${reading.id}`,
-      label: index === forecastSource.length - 1 ? "Now" : `-${forecastSource.length - 1 - index}h`,
-      probability,
-      pressure: Number(reading.pressure_hPa.toFixed(1)),
-      icon,
-      status: linkedPrediction?.risk_level ?? "Stable",
-    };
-  });
-
   const stations: StationSnapshot[] = orderedReadings
-    .slice(-3)
+    .slice(-12)
     .reverse()
     .map((reading, index) => ({
       id: `snapshot-${reading.id}`,
@@ -290,7 +241,7 @@ export function buildDashboardRuntimeData(
         actionLabel: "Monitoring",
       };
 
-  const recentAlerts: RecentAlert[] = alerts.slice(0, 5).map((alert) => ({
+  const recentAlerts: RecentAlert[] = alerts.slice(0, 12).map((alert) => ({
     id: alert.id,
     ruleType: alert.rule_type,
     severity: alert.severity,
@@ -303,7 +254,6 @@ export function buildDashboardRuntimeData(
     hero,
     highlights,
     summary,
-    forecast,
     stations,
     trends,
     banner,
