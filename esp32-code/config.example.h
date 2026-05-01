@@ -2,11 +2,11 @@
 
 // Copy this file to config.h and edit the values for your network and server.
 
-#define WIFI_SSID "your-wifi-name"
-#define WIFI_PASSWORD "your-wifi-password"
+#define WIFI_SSID "Kuwait"
+#define WIFI_PASSWORD "Jassomq8i"
 
 // Use the LAN IP address of the computer running Django. Do not use localhost.
-#define API_BASE_URL "http://192.168.1.10:8000"
+#define API_BASE_URL "http://10.0.0.16:8000"
 #define SENSOR_API_KEY "MyStormPredectionKey"
 
 // BMP280 I2C address is commonly 0x76 or 0x77.
@@ -24,7 +24,7 @@
 
 // Used until the ESP32 successfully reads temperature_high_threshold
 // from GET /api/v1/settings/.
-#define FALLBACK_FAN_THRESHOLD_C 30.0f
+#define FALLBACK_FAN_THRESHOLD_C 18.0f
 
 // Fan turns on at threshold and turns off at threshold - hysteresis.
 // Set to 0.0f if you want exact threshold behavior.

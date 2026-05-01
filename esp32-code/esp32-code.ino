@@ -120,9 +120,20 @@ bool isoTimestampUtc(char *buffer, size_t size) {
 void initBmp280() {
   Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
 
+  Serial.print("Looking for BMP280 at 0x");
+  Serial.print(BMP280_I2C_ADDRESS, HEX);
+  Serial.println("...");
+
   bmpReady = bmp.begin(BMP280_I2C_ADDRESS);
-  if (!bmpReady && BMP280_I2C_ADDRESS != 0x77) {
-    bmpReady = bmp.begin(0x77);
+  if (!bmpReady) {
+    Serial.print("BMP280 not found at 0x");
+    Serial.println(BMP280_I2C_ADDRESS, HEX);
+
+    const uint8_t fallback = (BMP280_I2C_ADDRESS == 0x76) ? 0x77 : 0x76;
+    Serial.print("Trying 0x");
+    Serial.print(fallback, HEX);
+    Serial.println("...");
+    bmpReady = bmp.begin(fallback);
   }
 
   if (!bmpReady) {
@@ -137,7 +148,7 @@ void initBmp280() {
       Adafruit_BMP280::FILTER_X16,
       Adafruit_BMP280::STANDBY_MS_500);
 
-  Serial.println("BMP280 initialized.");
+  Serial.println("BMP280 found and initialized.");
 }
 
 bool readSensor() {
