@@ -27,6 +27,12 @@
 #define FAN_ACTIVE_HIGH 1
 #endif
 
+#ifndef FORCE_FAN_ALWAYS_ON
+#define FORCE_FAN_ALWAYS_ON 0
+#endif
+
+#define FIRMWARE_BUILD_ID "fan-active-high-2026-05-01-0809"
+
 namespace {
 
 Adafruit_BMP280 bmp;
@@ -37,6 +43,7 @@ float fanThresholdC = FALLBACK_FAN_THRESHOLD_C;
 bool fanOn = false;
 bool bmpReady = false;
 bool serverReachable = false;
+int lastFanPinLevel = LOW;
 
 unsigned long lastFanControlMs = 0;
 unsigned long lastReadingPostMs = 0;
@@ -52,11 +59,17 @@ String apiUrl(const char *path) {
   return base + path;
 }
 
+int fanPinLevelFor(bool enabled) {
+  // This fan driver was verified with fan.ino: HIGH = ON, LOW = OFF.
+  return enabled ? HIGH : LOW;
+}
+
 void setFan(bool enabled) {
   const bool changed = fanOn != enabled;
   fanOn = enabled;
-  const int pinLevel = FAN_ACTIVE_HIGH ? (enabled ? HIGH : LOW) : (enabled ? LOW : HIGH);
+  const int pinLevel = fanPinLevelFor(enabled);
   digitalWrite(FAN_CONTROL_PIN, pinLevel);
+  lastFanPinLevel = pinLevel;
   if (!changed) return;
   Serial.print(">>> [FAN] state changed -> ");
   Serial.print(enabled ? "ON" : "OFF");
@@ -181,13 +194,22 @@ void updateFanControl() {
     return;
   }
 
+  const char *fanDecision = "holding";
+
+#if FORCE_FAN_ALWAYS_ON
+  setFan(true);
+  fanDecision = "forced on";
+#else
   if (!fanOn && latestTemperatureC >= fanThresholdC) {
     setFan(true);
+    fanDecision = "temp >= threshold";
   } else if (fanOn && latestTemperatureC < fanThresholdC - FAN_HYSTERESIS_C) {
     setFan(false);
+    fanDecision = "temp below threshold - hysteresis";
   } else {
     setFan(fanOn);
   }
+#endif
 
   Serial.print("Temp=");
   Serial.print(latestTemperatureC, 2);
@@ -197,8 +219,12 @@ void updateFanControl() {
   Serial.print(fanThresholdC, 2);
   Serial.print(" C  Fan=");
   Serial.print(fanOn ? "ON" : "OFF");
-  Serial.print("  Pin=");
-  Serial.println(digitalRead(FAN_CONTROL_PIN) == HIGH ? "HIGH" : "LOW");
+  Serial.print("  CommandedPin=");
+  Serial.print(lastFanPinLevel == HIGH ? "HIGH" : "LOW");
+  Serial.print("  ReadPin=");
+  Serial.print(digitalRead(FAN_CONTROL_PIN) == HIGH ? "HIGH" : "LOW");
+  Serial.print("  Reason=");
+  Serial.println(fanDecision);
 }
 
 bool refreshThreshold() {
@@ -331,15 +357,22 @@ bool postReading() {
 }  // namespace
 
 void setup() {
-  // Drive the fan to its configured OFF level immediately.
+  // Drive the fan to its configured startup level immediately.
   pinMode(FAN_CONTROL_PIN, OUTPUT);
-  digitalWrite(FAN_CONTROL_PIN, FAN_ACTIVE_HIGH ? LOW : HIGH);
+  setFan(FORCE_FAN_ALWAYS_ON);
 
   Serial.begin(115200);
   delay(1000);
 
   Serial.println();
   Serial.println("ESP32 Storm Controller starting...");
+  Serial.print("Firmware build: ");
+  Serial.println(FIRMWARE_BUILD_ID);
+  Serial.println("Fan polarity: HIGH=ON, LOW=OFF.");
+#if FORCE_FAN_ALWAYS_ON
+  Serial.println("Fan test mode enabled: GPIO 25 forced ON.");
+  return;
+#endif
 
   initBmp280();
   if (readSensor()) {
@@ -359,6 +392,13 @@ void setup() {
 }
 
 void loop() {
+#if FORCE_FAN_ALWAYS_ON
+  digitalWrite(FAN_CONTROL_PIN, fanPinLevelFor(true));
+  fanOn = true;
+  delay(1000);
+  return;
+#endif
+
   connectWifi();
 
   const unsigned long nowMs = millis();
