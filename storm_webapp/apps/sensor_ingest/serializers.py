@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 class ReadingSerializer(serializers.Serializer):
     timestamp = serializers.DateTimeField(required=False)
-    pressure_hPa = serializers.FloatField(min_value=900.0, max_value=1100.0)
+    pressure_hPa = serializers.FloatField(min_value=300.0, max_value=1100.0)
     temperature_C = serializers.FloatField(min_value=-60.0, max_value=60.0)
     source = serializers.ChoiceField(
         choices=["sensor", "simulator", "manual"],

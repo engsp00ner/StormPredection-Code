@@ -53,13 +53,16 @@ String apiUrl(const char *path) {
 }
 
 void setFan(bool enabled) {
+  const bool changed = fanOn != enabled;
   fanOn = enabled;
-
-#if FAN_ACTIVE_HIGH
-  digitalWrite(FAN_CONTROL_PIN, enabled ? HIGH : LOW);
-#else
-  digitalWrite(FAN_CONTROL_PIN, enabled ? LOW : HIGH);
-#endif
+  const int pinLevel = FAN_ACTIVE_HIGH ? (enabled ? HIGH : LOW) : (enabled ? LOW : HIGH);
+  digitalWrite(FAN_CONTROL_PIN, pinLevel);
+  if (!changed) return;
+  Serial.print(">>> [FAN] state changed -> ");
+  Serial.print(enabled ? "ON" : "OFF");
+  Serial.print(" (pin ");
+  Serial.print(pinLevel == HIGH ? "HIGH" : "LOW");
+  Serial.println(")");
 }
 
 void connectWifi() {
@@ -180,18 +183,22 @@ void updateFanControl() {
 
   if (!fanOn && latestTemperatureC >= fanThresholdC) {
     setFan(true);
-  } else if (fanOn && latestTemperatureC <= fanThresholdC - FAN_HYSTERESIS_C) {
+  } else if (fanOn && latestTemperatureC < fanThresholdC - FAN_HYSTERESIS_C) {
     setFan(false);
+  } else {
+    setFan(fanOn);
   }
 
-  Serial.print("Temperature=");
+  Serial.print("Temp=");
   Serial.print(latestTemperatureC, 2);
-  Serial.print(" C Pressure=");
+  Serial.print(" C  Pressure=");
   Serial.print(latestPressureHPa, 2);
-  Serial.print(" hPa Threshold=");
+  Serial.print(" hPa  Threshold=");
   Serial.print(fanThresholdC, 2);
-  Serial.print(" C Fan=");
-  Serial.println(fanOn ? "ON" : "OFF");
+  Serial.print(" C  Fan=");
+  Serial.print(fanOn ? "ON" : "OFF");
+  Serial.print("  Pin=");
+  Serial.println(digitalRead(FAN_CONTROL_PIN) == HIGH ? "HIGH" : "LOW");
 }
 
 bool refreshThreshold() {
@@ -324,23 +331,30 @@ bool postReading() {
 }  // namespace
 
 void setup() {
+  // Drive the fan to its configured OFF level immediately.
+  pinMode(FAN_CONTROL_PIN, OUTPUT);
+  digitalWrite(FAN_CONTROL_PIN, FAN_ACTIVE_HIGH ? LOW : HIGH);
+
   Serial.begin(115200);
   delay(1000);
 
   Serial.println();
   Serial.println("ESP32 Storm Controller starting...");
 
-  pinMode(FAN_CONTROL_PIN, OUTPUT);
-  setFan(false);
-
   initBmp280();
+  if (readSensor()) {
+    updateFanControl();
+  }
+
   connectWifi();
   if (WiFi.status() == WL_CONNECTED) {
-    syncTime();
     checkServerHealth();
     if (serverReachable) {
-      refreshThreshold();
+      if (refreshThreshold() && readSensor()) {
+        updateFanControl();
+      }
     }
+    syncTime();
   }
 }
 
@@ -373,4 +387,3 @@ void loop() {
 
   delay(50);
 }
-
