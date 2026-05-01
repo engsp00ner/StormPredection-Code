@@ -72,7 +72,7 @@ class ReadingIngestView(View):
             )
 
         validated = serializer.validated_data
-        timestamp = validated["timestamp"]
+        timestamp = validated.get("timestamp") or timezone.now()
 
         if SensorReading.objects.filter(timestamp=timestamp).exists():
             return JsonResponse(

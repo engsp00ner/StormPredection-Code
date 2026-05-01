@@ -19,8 +19,9 @@
 
 // Timing.
 #define FAN_CONTROL_INTERVAL_MS 3000UL
-#define READING_POST_INTERVAL_MS 60000UL
+#define READING_POST_INTERVAL_MS 30000UL
 #define THRESHOLD_REFRESH_INTERVAL_MS 60000UL
+#define HEALTH_CHECK_INTERVAL_MS 20000UL
 
 // Used until the ESP32 successfully reads temperature_high_threshold
 // from GET /api/v1/settings/.

@@ -19,8 +19,9 @@
 #define I2C_SCL_PIN 22
 #define FAN_CONTROL_PIN 25
 #define FAN_CONTROL_INTERVAL_MS 3000UL
-#define READING_POST_INTERVAL_MS 60000UL
+#define READING_POST_INTERVAL_MS 30000UL
 #define THRESHOLD_REFRESH_INTERVAL_MS 60000UL
+#define HEALTH_CHECK_INTERVAL_MS 20000UL
 #define FALLBACK_FAN_THRESHOLD_C 30.0f
 #define FAN_HYSTERESIS_C 0.5f
 #define FAN_ACTIVE_HIGH 1
@@ -35,10 +36,12 @@ float latestPressureHPa = NAN;
 float fanThresholdC = FALLBACK_FAN_THRESHOLD_C;
 bool fanOn = false;
 bool bmpReady = false;
+bool serverReachable = false;
 
 unsigned long lastFanControlMs = 0;
 unsigned long lastReadingPostMs = 0;
 unsigned long lastThresholdRefreshMs = 0;
+unsigned long lastHealthCheckMs = 0;
 unsigned long lastWifiAttemptMs = 0;
 
 String apiUrl(const char *path) {
@@ -84,8 +87,11 @@ void connectWifi() {
   Serial.println();
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.print("Wi-Fi connected. IP: ");
+    Serial.println("Wi-Fi connected.");
+    Serial.println("========================================");
+    Serial.print("  ESP32 IP address: ");
     Serial.println(WiFi.localIP());
+    Serial.println("========================================");
   } else {
     Serial.println("Wi-Fi connection failed. Will retry.");
   }
@@ -235,6 +241,31 @@ bool refreshThreshold() {
   return false;
 }
 
+void checkServerHealth() {
+  if (WiFi.status() != WL_CONNECTED) {
+    serverReachable = false;
+    Serial.println("Unable to access server (Wi-Fi not connected).");
+    return;
+  }
+
+  HTTPClient http;
+  http.begin(apiUrl("/api/v1/settings/"));
+  http.setTimeout(5000);
+  const int statusCode = http.GET();
+  http.end();
+
+  const bool wasReachable = serverReachable;
+  serverReachable = (statusCode > 0);
+
+  if (serverReachable && !wasReachable) {
+    Serial.println("Server is back online. Resuming data upload.");
+  } else if (!serverReachable) {
+    Serial.print("Unable to access server. (HTTP error: ");
+    Serial.print(statusCode);
+    Serial.println(") Will retry in 20 seconds.");
+  }
+}
+
 bool postReading() {
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println("Skipping POST: Wi-Fi is not connected.");
@@ -246,14 +277,15 @@ bool postReading() {
     return false;
   }
 
+  StaticJsonDocument<256> payload;
+
   char timestamp[25];
-  if (!isoTimestampUtc(timestamp, sizeof(timestamp))) {
-    Serial.println("Skipping POST: NTP time is not available.");
-    return false;
+  if (isoTimestampUtc(timestamp, sizeof(timestamp))) {
+    payload["timestamp"] = timestamp;
+  } else {
+    Serial.println("NTP not synced — server will timestamp this reading.");
   }
 
-  StaticJsonDocument<256> payload;
-  payload["timestamp"] = timestamp;
   payload["pressure_hPa"] = roundf(latestPressureHPa * 100.0f) / 100.0f;
   payload["temperature_C"] = roundf(latestTemperatureC * 100.0f) / 100.0f;
   payload["source"] = "sensor";
@@ -267,19 +299,24 @@ bool postReading() {
   http.addHeader("Content-Type", "application/json");
   http.addHeader("X-API-Key", SENSOR_API_KEY);
 
-  Serial.print("POST ");
-  Serial.println(url);
-  Serial.print("Payload: ");
-  Serial.println(body);
+  Serial.println("----------------------------------------");
+  Serial.println("  >>> Sending reading to web server <<<");
+  Serial.print("  URL     : "); Serial.println(url);
+  Serial.print("  Payload : "); Serial.println(body);
 
   const int statusCode = http.POST(body);
   const String response = http.getString();
   http.end();
 
-  Serial.print("API HTTP ");
-  Serial.println(statusCode);
-  Serial.print("Response: ");
-  Serial.println(response);
+  if (statusCode == 201) {
+    Serial.println("  [OK] Data accepted by server (HTTP 201)");
+  } else {
+    Serial.print("  [FAIL] Server replied HTTP ");
+    Serial.println(statusCode);
+    Serial.print("  Response: ");
+    Serial.println(response);
+  }
+  Serial.println("----------------------------------------");
 
   return statusCode == 201;
 }
@@ -300,7 +337,10 @@ void setup() {
   connectWifi();
   if (WiFi.status() == WL_CONNECTED) {
     syncTime();
-    refreshThreshold();
+    checkServerHealth();
+    if (serverReachable) {
+      refreshThreshold();
+    }
   }
 }
 
@@ -309,6 +349,11 @@ void loop() {
 
   const unsigned long nowMs = millis();
 
+  if (nowMs - lastHealthCheckMs >= HEALTH_CHECK_INTERVAL_MS) {
+    lastHealthCheckMs = nowMs;
+    checkServerHealth();
+  }
+
   if (nowMs - lastFanControlMs >= FAN_CONTROL_INTERVAL_MS) {
     lastFanControlMs = nowMs;
     if (readSensor()) {
@@ -316,12 +361,12 @@ void loop() {
     }
   }
 
-  if (nowMs - lastThresholdRefreshMs >= THRESHOLD_REFRESH_INTERVAL_MS) {
+  if (serverReachable && nowMs - lastThresholdRefreshMs >= THRESHOLD_REFRESH_INTERVAL_MS) {
     lastThresholdRefreshMs = nowMs;
     refreshThreshold();
   }
 
-  if (nowMs - lastReadingPostMs >= READING_POST_INTERVAL_MS) {
+  if (serverReachable && nowMs - lastReadingPostMs >= READING_POST_INTERVAL_MS) {
     lastReadingPostMs = nowMs;
     postReading();
   }
